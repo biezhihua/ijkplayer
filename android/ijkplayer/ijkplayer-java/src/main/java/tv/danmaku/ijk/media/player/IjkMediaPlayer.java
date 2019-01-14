@@ -181,6 +181,7 @@ public final class IjkMediaPlayer extends AbstractMediaPlayer {
     };
 
     private static volatile boolean mIsLibLoaded = false;
+
     public static void loadLibrariesOnce(IjkLibLoader libLoader) {
         synchronized (IjkMediaPlayer.class) {
             if (!mIsLibLoaded) {
@@ -196,6 +197,7 @@ public final class IjkMediaPlayer extends AbstractMediaPlayer {
     }
 
     private static volatile boolean mIsNativeInitialized = false;
+    
     private static void initNativeOnce() {
         synchronized (IjkMediaPlayer.class) {
             if (!mIsNativeInitialized) {
