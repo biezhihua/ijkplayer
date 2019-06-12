@@ -299,10 +299,12 @@ void ijkmp_shutdown_l(IjkMediaPlayer *mp)
     assert(mp);
 
     MPTRACE("ijkmp_shutdown_l()\n");
-    if (mp->ffplayer) {
+
+	if (mp->ffplayer) {
         ffp_stop_l(mp->ffplayer);
         ffp_wait_stop_l(mp->ffplayer);
     }
+	
     MPTRACE("ijkmp_shutdown_l()=void\n");
 }
 
@@ -406,12 +408,15 @@ static int ijkmp_prepare_async_l(IjkMediaPlayer *mp)
 
     // released in msg_loop
     ijkmp_inc_ref(mp);
+	
     mp->msg_thread = SDL_CreateThreadEx(&mp->_msg_thread, ijkmp_msg_loop, mp, "ff_msg_loop");
-    // msg_thread is detached inside msg_loop
+
+	// msg_thread is detached inside msg_loop
     // TODO: 9 release weak_thiz if pthread_create() failed;
 
     int retval = ffp_prepare_async_l(mp->ffplayer, mp->data_source);
-    if (retval < 0) {
+
+	if (retval < 0) {
         ijkmp_change_state_l(mp, MP_STATE_ERROR);
         return retval;
     }
@@ -424,8 +429,10 @@ int ijkmp_prepare_async(IjkMediaPlayer *mp)
     assert(mp);
     MPTRACE("ijkmp_prepare_async()\n");
     pthread_mutex_lock(&mp->mutex);
+	
     int retval = ijkmp_prepare_async_l(mp);
-    pthread_mutex_unlock(&mp->mutex);
+
+	pthread_mutex_unlock(&mp->mutex);
     MPTRACE("ijkmp_prepare_async()=%d\n", retval);
     return retval;
 }
@@ -464,8 +471,10 @@ int ijkmp_start(IjkMediaPlayer *mp)
     assert(mp);
     MPTRACE("ijkmp_start()\n");
     pthread_mutex_lock(&mp->mutex);
+	
     int retval = ijkmp_start_l(mp);
-    pthread_mutex_unlock(&mp->mutex);
+
+	pthread_mutex_unlock(&mp->mutex);
     MPTRACE("ijkmp_start()=%d\n", retval);
     return retval;
 }
@@ -504,8 +513,10 @@ int ijkmp_pause(IjkMediaPlayer *mp)
     assert(mp);
     MPTRACE("ijkmp_pause()\n");
     pthread_mutex_lock(&mp->mutex);
+	
     int retval = ijkmp_pause_l(mp);
-    pthread_mutex_unlock(&mp->mutex);
+
+	pthread_mutex_unlock(&mp->mutex);
     MPTRACE("ijkmp_pause()=%d\n", retval);
     return retval;
 }
@@ -541,8 +552,10 @@ int ijkmp_stop(IjkMediaPlayer *mp)
     assert(mp);
     MPTRACE("ijkmp_stop()\n");
     pthread_mutex_lock(&mp->mutex);
+	
     int retval = ijkmp_stop_l(mp);
-    pthread_mutex_unlock(&mp->mutex);
+
+	pthread_mutex_unlock(&mp->mutex);
     MPTRACE("ijkmp_stop()=%d\n", retval);
     return retval;
 }

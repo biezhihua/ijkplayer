@@ -33,6 +33,7 @@
 
 typedef struct SDL_VoutOverlay_Opaque SDL_VoutOverlay_Opaque;
 typedef struct SDL_VoutOverlay SDL_VoutOverlay;
+
 struct SDL_VoutOverlay {
     int w; /**< Read-only */
     int h; /**< Read-only */
@@ -58,7 +59,9 @@ struct SDL_VoutOverlay {
 };
 
 typedef struct SDL_Vout_Opaque SDL_Vout_Opaque;
+
 typedef struct SDL_Vout SDL_Vout;
+
 struct SDL_Vout {
     SDL_mutex *mutex;
 
@@ -70,6 +73,7 @@ struct SDL_Vout {
 
     Uint32 overlay_format;
 };
+
 
 void SDL_VoutFree(SDL_Vout *vout);
 void SDL_VoutFreeP(SDL_Vout **pvout);

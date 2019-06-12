@@ -1311,9 +1311,11 @@ static void video_refresh(FFPlayer *opaque, double *remaining_time)
 
     Frame *sp, *sp2;
 
+	// 以ExternalClock作为时间轴
     if (!is->paused && get_master_sync_type(is) == AV_SYNC_EXTERNAL_CLOCK && is->realtime)
         check_external_clock_speed(is);
 
+	// 声音波形渲染
     if (!ffp->display_disable && is->show_mode != SHOW_MODE_VIDEO && is->audio_st) {
         time = av_gettime_relative() / 1000000.0;
         if (is->force_refresh || is->last_vis_time + ffp->rdftspeed < time) {
@@ -1323,6 +1325,7 @@ static void video_refresh(FFPlayer *opaque, double *remaining_time)
         *remaining_time = FFMIN(*remaining_time, is->last_vis_time + ffp->rdftspeed - time);
     }
 
+	
     if (is->video_st) {
 retry:
         if (frame_queue_nb_remaining(&is->pictq) == 0) {
@@ -1332,8 +1335,10 @@ retry:
             Frame *vp, *lastvp;
 
             /* dequeue the picture */
+			
             lastvp = frame_queue_peek_last(&is->pictq);
-            vp = frame_queue_peek(&is->pictq);
+
+			vp = frame_queue_peek(&is->pictq);
 
             if (vp->serial != is->videoq.serial) {
                 frame_queue_next(&is->pictq);
@@ -1414,6 +1419,7 @@ display:
         /* display picture */
         if (!ffp->display_disable && is->force_refresh && is->show_mode == SHOW_MODE_VIDEO && is->pictq.rindex_shown)
             video_display2(ffp);
+		
     }
     is->force_refresh = 0;
     if (ffp->show_status) {
@@ -3322,14 +3328,18 @@ static int read_thread(void *arg)
 
     if (!ffp->render_wait_start && !ffp->start_on_prepared)
         toggle_pause(ffp, 1);
+	
     if (is->video_st && is->video_st->codecpar) {
         AVCodecParameters *codecpar = is->video_st->codecpar;
         ffp_notify_msg3(ffp, FFP_MSG_VIDEO_SIZE_CHANGED, codecpar->width, codecpar->height);
         ffp_notify_msg3(ffp, FFP_MSG_SAR_CHANGED, codecpar->sample_aspect_ratio.num, codecpar->sample_aspect_ratio.den);
     }
+	
     ffp->prepared = true;
-    ffp_notify_msg1(ffp, FFP_MSG_PREPARED);
-    if (!ffp->render_wait_start && !ffp->start_on_prepared) {
+
+	ffp_notify_msg1(ffp, FFP_MSG_PREPARED);
+
+	if (!ffp->render_wait_start && !ffp->start_on_prepared) {
         while (is->pause_req && !is->abort_request) {
             SDL_Delay(20);
         }
@@ -3642,14 +3652,19 @@ static VideoState *stream_open(FFPlayer *ffp, const char *filename, AVInputForma
     VideoState *is;
 
     is = av_mallocz(sizeof(VideoState));
+	
     if (!is)
         return NULL;
-    is->filename = av_strdup(filename);
-    if (!is->filename)
+
+	is->filename = av_strdup(filename);
+
+	if (!is->filename)
         goto fail;
-    is->iformat = iformat;
+
+	is->iformat = iformat;
     is->ytop    = 0;
     is->xleft   = 0;
+	
 #if defined(__ANDROID__)
     if (ffp->soundtouch_enable) {
         is->handle = ijk_soundtouch_create();
@@ -3688,11 +3703,14 @@ static VideoState *stream_open(FFPlayer *ffp, const char *filename, AVInputForma
     init_clock(&is->audclk, &is->audioq.serial);
     init_clock(&is->extclk, &is->extclk.serial);
     is->audio_clock_serial = -1;
+	
     if (ffp->startup_volume < 0)
         av_log(NULL, AV_LOG_WARNING, "-volume=%d < 0, setting to 0\n", ffp->startup_volume);
-    if (ffp->startup_volume > 100)
+
+	if (ffp->startup_volume > 100)
         av_log(NULL, AV_LOG_WARNING, "-volume=%d > 100, setting to 100\n", ffp->startup_volume);
-    ffp->startup_volume = av_clip(ffp->startup_volume, 0, 100);
+
+	ffp->startup_volume = av_clip(ffp->startup_volume, 0, 100);
     ffp->startup_volume = av_clip(SDL_MIX_MAXVOLUME * ffp->startup_volume / 100, 0, SDL_MIX_MAXVOLUME);
     is->audio_volume = ffp->startup_volume;
     is->muted = 0;
@@ -3862,6 +3880,7 @@ static void ffp_log_callback_report(void *ptr, int level, const char *fmt, va_li
 }
 
 int ijkav_register_all(void);
+
 void ffp_global_init()
 {
     if (g_ffmpeg_global_inited)
@@ -3869,13 +3888,17 @@ void ffp_global_init()
 
     ALOGD("ijkmediaplayer version : %s", ijkmp_version());
     /* register all codecs, demux and protocols */
+	
     avcodec_register_all();
+	
 #if CONFIG_AVDEVICE
     avdevice_register_all();
 #endif
+
 #if CONFIG_AVFILTER
     avfilter_register_all();
 #endif
+
     av_register_all();
 
     ijkav_register_all();
@@ -4285,6 +4308,7 @@ int ffp_prepare_async_l(FFPlayer *ffp, const char *file_name)
     av_log(NULL, AV_LOG_INFO, "===================\n");
 
     av_opt_set_dict(ffp, &ffp->player_opts);
+	
     if (!ffp->aout) {
         ffp->aout = ffpipeline_open_audio_output(ffp->pipeline, ffp);
         if (!ffp->aout)
@@ -4358,13 +4382,15 @@ int ffp_stop_l(FFPlayer *ffp)
 {
     assert(ffp);
     VideoState *is = ffp->is;
-    if (is) {
+
+	if (is) {
         is->abort_request = 1;
         toggle_pause(ffp, 1);
     }
 
     msg_queue_abort(&ffp->msg_queue);
-    if (ffp->enable_accurate_seek && is && is->accurate_seek_mutex
+
+	if (ffp->enable_accurate_seek && is && is->accurate_seek_mutex
         && is->audio_accurate_seek_cond && is->video_accurate_seek_cond) {
         SDL_LockMutex(is->accurate_seek_mutex);
         is->audio_accurate_seek_req = 0;

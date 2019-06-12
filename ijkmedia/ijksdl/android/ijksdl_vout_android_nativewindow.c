@@ -213,8 +213,10 @@ SDL_Vout *SDL_VoutAndroid_CreateForANativeWindow()
 
     SDL_Vout_Opaque *opaque = vout->opaque;
     opaque->native_window = NULL;
-    if (ISDL_Array__init(&opaque->overlay_manager, 32))
+
+	if (ISDL_Array__init(&opaque->overlay_manager, 32))
         goto fail;
+	
     if (ISDL_Array__init(&opaque->overlay_pool, 32))
         goto fail;
 

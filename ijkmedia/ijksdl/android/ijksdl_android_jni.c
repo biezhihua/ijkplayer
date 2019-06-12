@@ -63,6 +63,7 @@ jint SDL_JNI_SetupThreadEnv(JNIEnv **p_env)
         return -1;
     }
 
+	// 
     pthread_once(&g_key_once, make_thread_key);
 
     JNIEnv *env = (JNIEnv*) pthread_getspecific(g_thread_key);

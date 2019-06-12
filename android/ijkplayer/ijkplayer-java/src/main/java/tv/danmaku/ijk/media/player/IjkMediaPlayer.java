@@ -144,6 +144,7 @@ public final class IjkMediaPlayer extends AbstractMediaPlayer {
 
     @AccessedByNative
     private long mNativeMediaPlayer;
+
     @AccessedByNative
     private long mNativeMediaDataSource;
 

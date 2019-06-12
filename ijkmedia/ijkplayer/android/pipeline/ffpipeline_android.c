@@ -143,6 +143,7 @@ IJKFF_Pipeline *ffpipeline_create_from_android(FFPlayer *ffp)
     opaque->surface_mutex         = SDL_CreateMutex();
     opaque->left_volume           = 1.0f;
     opaque->right_volume          = 1.0f;
+	
     if (!opaque->surface_mutex) {
         ALOGE("ffpipeline-android:create SDL_CreateMutex failed\n");
         goto fail;
